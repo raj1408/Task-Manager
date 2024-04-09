@@ -11,7 +11,7 @@ export default function Task(props) {
     >
       <p>Title:- {props.taskName}</p>
       <p>Description:- {`"${props.description}"`}</p>
-      <p>Due Dtae:- {props.dueDate}</p>
+      <p>Due Date:- {props.dueDate}</p>
       <p>Priority:- {props.priority}</p>
       <div className="buttons">
         <button
