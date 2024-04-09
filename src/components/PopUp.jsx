@@ -24,11 +24,18 @@ export default function PopUp(props) {
           type="text"
           placeholder="Due Date"
         />
-        <input
+        <select
           onChange={props.handleChangePriority}
-          type="text"
+          defaultValue="" // Set a default value or handle it based on your logic
           placeholder="Priority"
-        />
+        >
+          <option value="" disabled>
+            Select Priority
+          </option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
         <div className="buttons">
           <button className="edit_task" onClick={props.handleAddTask}>
             Add new Task
