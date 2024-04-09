@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import Task from "./Task";
 import PopUp from "./PopUp";
@@ -12,6 +13,7 @@ export default function ToDo(props) {
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState("");
+
   const firebase = useFirebase();
 
   const togglePopup = () => {
@@ -62,6 +64,46 @@ export default function ToDo(props) {
       setIsOpen(false);
     } catch (error) {
       console.error("Error creating new task:", error.message);
+    }
+  };
+
+  const deleteTask = async (taskID) => {
+    try {
+      const loggedInUserId = firebase.loggedInUser()?.uid;
+      if (!loggedInUserId) {
+        console.error("User is not logged in.");
+        return;
+      }
+      await firebase.removeTaskFromFirestore(loggedInUserId, taskID);
+      console.log("Task deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting task:", error.message);
+    }
+  };
+
+  const updateTask = async (taskID) => {
+    try {
+      const loggedInUserId = firebase.loggedInUser()?.uid;
+      if (!loggedInUserId) {
+        console.error("User is not logged in.");
+        return;
+      }
+      await firebase.editTasksInFirestore(
+        loggedInUserId,
+        taskID,
+        newTaskName,
+        newTaskDescription,
+        newTaskDueDate,
+        newTaskPriority
+      );
+      console.log("Task updated successfully.");
+      setNewTaskName("");
+      setNewTaskDescription("");
+      setNewTaskDueDate("");
+      setNewTaskPriority("");
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error updating task:", error.message);
     }
   };
 
@@ -131,6 +173,7 @@ export default function ToDo(props) {
               handleChangeDueDate={handleChangeDueDate}
               handleChangePriority={handleChangePriority}
               handleChangeDescription={handleChangeDescription}
+              updateTask={updateTask}
             />
           </div>
 
@@ -143,6 +186,8 @@ export default function ToDo(props) {
               key={index}
               id={task.id}
               handleDragStart={handleDragStart}
+              togglePopup={togglePopup}
+              deleteTask={deleteTask}
             />
           ))}
         </div>

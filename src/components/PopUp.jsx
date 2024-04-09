@@ -24,8 +24,19 @@ export default function PopUp(props) {
           type="text"
           placeholder="Due Date"
         />
-        <input onChange={props.handleChangePriority} placeholder="Priority" />
-        <button onClick={props.handleAddTask}>Add</button>
+        <input
+          onChange={props.handleChangePriority}
+          type="text"
+          placeholder="Priority"
+        />
+        <div className="buttons">
+          <button className="edit_task" onClick={props.handleAddTask}>
+            Add new Task
+          </button>
+          <button className="edit_task" onClick={props.updateTask}>
+            Edit current task
+          </button>
+        </div>
       </div>
     </div>
   );

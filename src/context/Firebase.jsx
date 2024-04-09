@@ -22,6 +22,8 @@ import {
   where,
   getDocs,
   setDoc,
+  deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -189,6 +191,19 @@ export const FirebaseProvider = (props) => {
     }
   };
 
+  const removeTaskFromFirestore = async (authUser, taskID) => {
+    if (!authUser || !taskID) {
+      return;
+    }
+    try {
+      const tasksCollectionRef = doc(fireStore, `tasks`, taskID);
+      await deleteDoc(tasksCollectionRef);
+      console.log("Task removed from Firestore");
+    } catch (error) {
+      console.log("Error removing task from Firestore:", error.message);
+    }
+  };
+
   const createTasksInFirestore = async (
     authUser,
     taskName,
@@ -254,8 +269,44 @@ export const FirebaseProvider = (props) => {
 
       return tasks;
     } catch (error) {
-      console.log("Error getting Tasks lists from Firestore:", error.message);
+      console.log("Error getting Tasks from Firestore:", error.message);
       return [];
+    }
+  };
+
+  const editTasksInFirestore = async (
+    taskID,
+    taskName,
+    taskDescription,
+    taskDueDate,
+    taskPriority
+  ) => {
+    if (!taskID) {
+      console.error("Task ID is required.");
+      return;
+    }
+
+    try {
+      const taskRef = doc(fireStore, "tasks", taskID);
+      const updates = {};
+
+      if (taskName !== "") {
+        updates.name = taskName;
+      }
+      if (taskDescription !== "") {
+        updates.description = taskDescription;
+      }
+      if (taskDueDate !== "") {
+        updates.dueDate = taskDueDate;
+      }
+      if (taskPriority !== "") {
+        updates.priority = taskPriority;
+      }
+
+      await updateDoc(taskRef, updates);
+      console.log("Task updated successfully!");
+    } catch (error) {
+      console.error("Error updating task:", error);
     }
   };
 
@@ -274,6 +325,8 @@ export const FirebaseProvider = (props) => {
         getToDoLists,
         createTasksInFirestore,
         getTasksFromFirestore,
+        removeTaskFromFirestore,
+        editTasksInFirestore,
       }}
     >
       {props.children}
