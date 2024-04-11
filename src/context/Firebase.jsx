@@ -11,20 +11,15 @@ import {
 } from "firebase/auth";
 
 import {
-  getFirestore,
-  addDoc,
-  collection,
-  query,
-  onSnapshot,
-  writeBatch,
-  doc,
-  serverTimestamp,
-  where,
-  getDocs,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-} from "firebase/firestore";
+  get,
+  getDatabase,
+  set,
+  ref,
+  push,
+  onValue,
+  remove,
+  update,
+} from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyByW9OLGFRuWEjeuknt6PnUOJ0lG6-LUFI",
@@ -39,7 +34,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
-const fireStore = getFirestore(firebaseApp);
+const firebaseDatabase = getDatabase(firebaseApp);
 
 const FirebaseContext = createContext(null);
 
@@ -71,7 +66,7 @@ export const FirebaseProvider = (props) => {
         password
       );
       setUser(userCredential.user);
-      createUserInFirestore(userCredential.user);
+      createUserInRealtimeDB(userCredential.user);
     } catch (error) {
       setError(error.message);
       console.log("Signup Error:", error.message);
@@ -83,7 +78,7 @@ export const FirebaseProvider = (props) => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(firebaseAuth, provider);
       setUser(result.user);
-      createUserInFirestore(result.user);
+      createUserInRealtimeDB(result.user);
     } catch (error) {
       setError(error.message);
       console.log("Google Login Error:", error.message);
@@ -134,77 +129,84 @@ export const FirebaseProvider = (props) => {
       });
   };
 
-  const createUserInFirestore = (authUser) => {
+  const createUserInRealtimeDB = (authUser) => {
     if (authUser && authUser.email && authUser.uid) {
-      const userRef = collection(fireStore, "users");
-      addDoc(userRef, {
+      const usersRef = ref(firebaseDatabase, "users");
+      const newUserRef = push(usersRef);
+      set(newUserRef, {
         email: authUser.email,
         uid: authUser.uid,
-        createdAt: serverTimestamp(),
+        createdAt: Date.now(),
       })
-        .then(() => console.log("User created in Firestore"))
+        .then(() => console.log("User created in Realtime Database"))
         .catch((error) =>
-          console.log("Error creating user in Firestore:", error.message)
+          console.log(
+            "Error creating user in Realtime Database:",
+            error.message
+          )
         );
     }
   };
 
-  const createToDosInFirestore = async (authUser, todoTitle) => {
+  const createToDosInRealtimeDB = async (authUser, todoTitle) => {
     if (!authUser || todoTitle === undefined) {
       return;
     }
 
     try {
-      const userTodosRef = collection(fireStore, `todos`);
-      const batch = writeBatch(fireStore);
-
-      const newDocRef = doc(userTodosRef);
+      const userTodosRef = ref(firebaseDatabase, `todos`);
+      const newTodoRef = push(userTodosRef);
       const titleValue =
         typeof todoTitle === "string" ? todoTitle : "Default Title";
-      batch.set(newDocRef, {
+      set(newTodoRef, {
         userID: authUser,
         title: titleValue,
-        createdAt: serverTimestamp(),
+        createdAt: Date.now(),
       });
-
-      await batch.commit();
-      console.log("ToDos created in Firestore");
+      console.log("ToDos created in Realtime Database");
     } catch (error) {
-      console.log("Error creating ToDos in Firestore:", error.message);
+      console.log("Error creating ToDos in Realtime Database:", error.message);
     }
   };
 
   const getToDoLists = async (authUser) => {
     if (!authUser) {
       console.log("No user to get ToDo lists for");
-      return;
+      return [];
     }
     try {
-      const userTodosRef = collection(fireStore, `/todos`);
-      const q = query(userTodosRef, where("userID", "==", authUser));
-      const querySnapshot = await getDocs(q);
-      const lists = querySnapshot.docs.map((doc) => doc.data().title);
-
-      return lists;
+      const userTodosRef = ref(firebaseDatabase, `/todos`);
+      const snapshot = await get(userTodosRef); // Change onValue to get
+      const todosObj = snapshot.val();
+      if (todosObj) {
+        const lists = Object.values(todosObj).map((todo) => todo.title);
+        return lists;
+      } else {
+        return [];
+      }
     } catch (error) {
-      console.log("Error getting ToDo lists from Firestore:", error.message);
+      console.log(
+        "Error getting ToDo lists from Realtime Database:",
+        error.message
+      );
+      return [];
     }
   };
 
-  const removeTaskFromFirestore = async (authUser, taskID) => {
+  const removeTaskFromRealtimeDB = async (authUser, taskID) => {
     if (!authUser || !taskID) {
       return;
     }
     try {
-      const tasksCollectionRef = doc(fireStore, `tasks`, taskID);
-      await deleteDoc(tasksCollectionRef);
-      console.log("Task removed from Firestore");
+      const taskRef = ref(firebaseDatabase, `tasks/${taskID}`);
+      await remove(taskRef);
+      console.log("Task removed from Realtime Database");
     } catch (error) {
-      console.log("Error removing task from Firestore:", error.message);
+      console.log("Error removing task from Realtime Database:", error.message);
     }
   };
 
-  const createTasksInFirestore = async (
+  const createTasksInRealtimeDB = async (
     authUser,
     taskName,
     taskDescription,
@@ -217,64 +219,61 @@ export const FirebaseProvider = (props) => {
     }
 
     try {
-      const tasksCollectionRef = collection(fireStore, `tasks`);
-      const batch = writeBatch(fireStore);
-
-      const newDocRef = doc(tasksCollectionRef);
+      const tasksRef = ref(firebaseDatabase, `tasks`);
+      const newTaskRef = push(tasksRef);
       const priorityValue = taskPriority || "Medium"; // Assuming "Medium" as default priority
       const dueDateValue = taskDueDate || null; // Set to null if no due date provided
 
-      batch.set(newDocRef, {
+      set(newTaskRef, {
         userID: authUser,
         name: taskName,
         description: taskDescription || null, // Set to null if no description provided
         dueDate: dueDateValue,
         priority: priorityValue,
         todoTitle: todoTitle,
-        createdAt: serverTimestamp(),
+        createdAt: Date.now(),
       });
-
-      await batch.commit();
-      console.log("Task created in Firestore");
+      console.log("Task created in Realtime Database");
     } catch (error) {
-      console.error("Error creating Task in Firestore:", error.message);
+      console.error("Error creating Task in Realtime Database:", error.message);
     }
   };
 
-  const getTasksFromFirestore = async (userID, todoTitle) => {
+  const getTasksFromRealtimeDB = async (userID, todoTitle) => {
     if (!userID) {
       console.log("No user to get Tasks lists for");
       return [];
     }
 
     try {
-      const userTodosRef = collection(fireStore, "tasks");
-      const q = query(
-        userTodosRef,
-        where("userID", "==", userID),
-        where("todoTitle", "==", todoTitle)
-      );
-      const querySnapshot = await getDocs(q);
+      const tasksRef = ref(firebaseDatabase, "tasks");
+      const snapshot = await get(tasksRef); // Changed onValue to get
+      const tasksObj = snapshot.val();
 
-      const tasks = querySnapshot.docs.map((doc) => {
-        const taskData = doc.data();
-        return {
-          id: doc.id || "",
-          name: taskData.name || "",
-          description: taskData.description || "",
-          dueDate: taskData.dueDate || "",
-          priority: taskData.priority || "",
-        };
-      });
+      if (!tasksObj) {
+        return [];
+      }
 
+      const tasks = Object.entries(tasksObj)
+        .filter(
+          ([key, task]) =>
+            task.userID === userID && task.todoTitle === todoTitle
+        )
+        .map(([key, task]) => ({
+          id: key,
+          name: task.name || "",
+          description: task.description || "",
+          dueDate: task.dueDate || "",
+          priority: task.priority || "",
+        }));
       return tasks;
     } catch (error) {
-      console.log("Error getting Tasks from Firestore:", error.message);
+      console.log("Error getting Tasks from Realtime Database:", error.message);
       return [];
     }
   };
 
-  const editTasksInFirestore = async (
+  const editTasksInRealtimeDB = async (
     taskID,
     taskName,
     taskDescription,
@@ -287,7 +286,7 @@ export const FirebaseProvider = (props) => {
     }
 
     try {
-      const taskRef = doc(fireStore, "tasks", taskID);
+      const taskRef = ref(firebaseDatabase, `tasks/${taskID}`);
       const updates = {};
 
       if (taskName !== "") {
@@ -303,10 +302,11 @@ export const FirebaseProvider = (props) => {
         updates.priority = taskPriority;
       }
 
-      await updateDoc(taskRef, updates);
+      await update(taskRef, updates);
       console.log("Task updated successfully!");
     } catch (error) {
-      console.error("Error updating task:", error);
+      console.error("Error updating task in Realtime Database:", error);
+      // Handle specific types of errors if needed
     }
   };
 
@@ -321,12 +321,13 @@ export const FirebaseProvider = (props) => {
         error,
         clearError,
         logOutUser,
-        createToDosInFirestore,
+        createToDosInRealtimeDB,
         getToDoLists,
-        createTasksInFirestore,
-        getTasksFromFirestore,
-        removeTaskFromFirestore,
-        editTasksInFirestore,
+        createTasksInRealtimeDB,
+        getTasksFromRealtimeDB,
+        removeTaskFromRealtimeDB,
+        editTasksInRealtimeDB,
+        createUserInRealtimeDB,
       }}
     >
       {props.children}

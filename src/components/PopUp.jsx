@@ -21,8 +21,7 @@ export default function PopUp(props) {
         />
         <input
           onChange={props.handleChangeDueDate}
-          type="text"
-          placeholder="Due Date"
+          type="date" // Changed from "date" to "date"
         />
         <select
           onChange={props.handleChangePriority}

@@ -5,6 +5,7 @@ import { useFirebase } from "../context/Firebase";
 export default function ToDoLists() {
   const [lists, setLists] = useState([]);
   const [newListTitle, setNewListTitle] = useState("");
+  const [refresh, setRefresh] = useState(false);
   const firebase = useFirebase();
 
   const handleInputChange = (e) => {
@@ -14,22 +15,30 @@ export default function ToDoLists() {
   useEffect(() => {
     const fetchLists = async () => {
       try {
-        const fetchedLists = await firebase.getToDoLists(
-          firebase.loggedInUser()?.uid
-        );
-        setLists(fetchedLists || []); // Ensure that fetchedLists is an array, otherwise set an empty array
+        const loggedInUserId = firebase.loggedInUser()?.uid;
+        if (!loggedInUserId) {
+          console.error("User is not logged in.");
+          return;
+        }
+
+        const fetchedLists = await firebase.getToDoLists(loggedInUserId);
+        if (Array.isArray(fetchedLists)) {
+          setLists(fetchedLists);
+        } else {
+          console.error("Fetched ToDo lists is not an array.");
+        }
       } catch (error) {
         console.error("Error fetching ToDo lists:", error);
       }
     };
 
     fetchLists();
-  }, [firebase]);
+  }, [firebase, refresh]);
 
   const addList = async () => {
     if (newListTitle.trim() !== "") {
       try {
-        await firebase.createToDosInFirestore(
+        await firebase.createToDosInRealtimeDB(
           firebase.loggedInUser()?.uid,
           newListTitle
         );
@@ -38,6 +47,7 @@ export default function ToDoLists() {
         console.error("Error creating new list:", error.message);
       }
     }
+    setRefresh(true);
   };
 
   return (

@@ -47,7 +47,7 @@ export default function ToDo(props) {
         return;
       }
 
-      await firebase.createTasksInFirestore(
+      await firebase.createTasksInRealtimeDB(
         loggedInUserId,
         taskName,
         taskDescription,
@@ -73,7 +73,7 @@ export default function ToDo(props) {
         console.error("User is not logged in.");
         return;
       }
-      await firebase.removeTaskFromFirestore(loggedInUserId, taskID);
+      await firebase.removeTaskFromRealtimeDB(loggedInUserId, taskID);
       console.log("Task deleted successfully.");
     } catch (error) {
       console.error("Error deleting task:", error.message);
@@ -87,7 +87,7 @@ export default function ToDo(props) {
         console.error("User is not logged in.");
         return;
       }
-      await firebase.editTasksInFirestore(
+      await firebase.editTasksInRealtimeDB(
         loggedInUserId,
         taskID,
         newTaskName,
@@ -108,7 +108,7 @@ export default function ToDo(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const tasksList = await firebase.getTasksFromFirestore(
+      const tasksList = await firebase.getTasksFromRealtimeDB(
         firebase.loggedInUser()?.uid,
         props.ListName
       );
@@ -116,7 +116,7 @@ export default function ToDo(props) {
     };
 
     fetchData();
-  }, [props.userID, props.todoTitle]);
+  }, [props.userID, props.todoTitle, tasks]); // Add tasks to the dependency array
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
