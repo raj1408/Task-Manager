@@ -20,7 +20,6 @@ export default function ToDoLists() {
           console.error("User is not logged in.");
           return;
         }
-
         const fetchedLists = await firebase.getToDoLists(loggedInUserId);
         if (Array.isArray(fetchedLists)) {
           setLists(fetchedLists);
@@ -38,7 +37,7 @@ export default function ToDoLists() {
   const addList = async () => {
     if (newListTitle.trim() !== "") {
       try {
-        await firebase.createToDosInRealtimeDB(
+        await firebase.createToDosInFirestore(
           firebase.loggedInUser()?.uid,
           newListTitle
         );

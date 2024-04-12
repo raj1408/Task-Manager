@@ -5,8 +5,9 @@ import PopUp from "./PopUp";
 import { useFirebase } from "../context/Firebase";
 
 export default function ToDo(props) {
+  const [refresh, setRefresh] = useState(false);
   const [tasks, setTasks] = useState([]);
-  const [draggedTask, setDraggedTask] = useState(null);
+  const [draggedTaskID, setDraggedTaskID] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -47,7 +48,7 @@ export default function ToDo(props) {
         return;
       }
 
-      await firebase.createTasksInRealtimeDB(
+      await firebase.createTasksInFirestore(
         loggedInUserId,
         taskName,
         taskDescription,
@@ -64,6 +65,7 @@ export default function ToDo(props) {
     } catch (error) {
       console.error("Error creating new task:", error.message);
     }
+    setRefresh(true);
   };
 
   const deleteTask = async (taskID) => {
@@ -73,11 +75,12 @@ export default function ToDo(props) {
         console.error("User is not logged in.");
         return;
       }
-      await firebase.removeTaskFromRealtimeDB(loggedInUserId, taskID);
+      await firebase.removeTaskFromFirestore(loggedInUserId, taskID);
       console.log("Task deleted successfully.");
     } catch (error) {
       console.error("Error deleting task:", error.message);
     }
+    setRefresh(true);
   };
 
   const updateTask = async (taskID) => {
@@ -87,7 +90,7 @@ export default function ToDo(props) {
         console.error("User is not logged in.");
         return;
       }
-      await firebase.editTasksInRealtimeDB(
+      await firebase.editTasksInFirestore(
         loggedInUserId,
         taskID,
         newTaskName,
@@ -104,11 +107,12 @@ export default function ToDo(props) {
     } catch (error) {
       console.error("Error updating task:", error.message);
     }
+    setRefresh(true);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      const tasksList = await firebase.getTasksFromRealtimeDB(
+      const tasksList = await firebase.getTasksFromFirestore(
         firebase.loggedInUser()?.uid,
         props.ListName
       );
@@ -116,44 +120,25 @@ export default function ToDo(props) {
     };
 
     fetchData();
-  }, [props.userID, props.todoTitle, tasks]); // Add tasks to the dependency array
+  }, [props.userID, props.todoTitle, tasks, refresh]); // Add tasks to the dependency array
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      setTasks((oldList) => {
-        const oldIndex = oldList.findIndex((item) => item.id === active.id);
-        const newIndex = oldList.findIndex((item) => item.id === over.id);
-        return arrayMove(oldList, oldIndex, newIndex);
-      });
-    }
+  const handleDragStart = (task) => {
+    setDraggedTaskID(task.id);
+    console.log("Drag started", task);
   };
-
-  const handleDragStart = (e, task) => {
-    setDraggedTask(task);
-  };
-
-  useEffect(() => {
-    setDraggedTask(draggedTask);
-  }, [draggedTask]);
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    console.log("Drag over", props?.ListName);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (draggedTask) {
-      const isTaskInTasks = tasks.some((task) => task.id === draggedTask.id);
-      if (!isTaskInTasks) {
-        const updatedTasks = [...tasks, draggedTask];
-        setTasks(updatedTasks);
-        setDraggedTask(null); // Set dragged task to null after updating tasks
-      } else {
-        console.warn("Task already exists in tasks array.");
-      }
-    }
+  const handleDrop = async (e) => {
+    console.log("Drop", props?.ListName, draggedTaskID);
+    await firebase.onDropUpdate("m1jKShTvsmAahstaNpGE", props.ListName);
+    setDraggedTaskID(null);
   };
+
+  useEffect(() => {}, [draggedTaskID]);
 
   return (
     <>

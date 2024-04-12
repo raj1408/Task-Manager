@@ -3,10 +3,10 @@ import React, { useState } from "react";
 export default function Task(props) {
   return (
     <div
-      draggable
+      draggable="true"
       className="task"
       onDragStart={(e) => {
-        props?.handleDragStart(e, props);
+        props.handleDragStart(e, props?.id);
       }}
     >
       <p>Title:- {props.taskName}</p>

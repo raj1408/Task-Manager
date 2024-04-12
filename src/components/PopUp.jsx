@@ -12,17 +12,14 @@ export default function PopUp(props) {
         </span>
         <input
           onChange={props.handleChangeName}
-          type="text" // Changed from " text" to "text"
+          type="text"
           placeholder="Title"
         />
-        <textarea // Changed from "text-area" to "textarea"
+        <textarea
           onChange={props.handleChangeDescription}
           placeholder="Description"
         />
-        <input
-          onChange={props.handleChangeDueDate}
-          type="date" // Changed from "date" to "date"
-        />
+        <input onChange={props.handleChangeDueDate} type="date" />
         <select
           onChange={props.handleChangePriority}
           defaultValue="" // Set a default value or handle it based on your logic
@@ -39,7 +36,7 @@ export default function PopUp(props) {
           <button className="edit_task" onClick={props.handleAddTask}>
             Add new Task
           </button>
-          <button className="edit_task" onClick={props.updateTask}>
+          <button className="edit_task" onClick={props.taskChange}>
             Edit current task
           </button>
         </div>
