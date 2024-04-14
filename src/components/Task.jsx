@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { useFirebase } from "../context/Firebase";
 
 export default function Task(props) {
+  const firebase = useFirebase();
   return (
     <div
       draggable="true"
       className="task"
       onDragStart={(e) => {
-        props.handleDragStart(e, props?.id);
+        firebase.handleDragStart(props?.id);
       }}
     >
       <p>Title:- {props.taskName}</p>

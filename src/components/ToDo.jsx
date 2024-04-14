@@ -7,7 +7,7 @@ import { useFirebase } from "../context/Firebase";
 export default function ToDo(props) {
   const [refresh, setRefresh] = useState(false);
   const [tasks, setTasks] = useState([]);
-  const [draggedTaskID, setDraggedTaskID] = useState(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [newTaskName, setNewTaskName] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -122,23 +122,13 @@ export default function ToDo(props) {
     fetchData();
   }, [props.userID, props.todoTitle, tasks, refresh]); // Add tasks to the dependency array
 
-  const handleDragStart = (task) => {
-    setDraggedTaskID(task.id);
-    console.log("Drag started", task);
-  };
-
   const handleDragOver = (e) => {
     e.preventDefault();
-    console.log("Drag over", props?.ListName);
   };
 
   const handleDrop = async (e) => {
-    console.log("Drop", props?.ListName, draggedTaskID);
-    await firebase.onDropUpdate("m1jKShTvsmAahstaNpGE", props.ListName);
-    setDraggedTaskID(null);
+    await firebase.onDropUpdate(props.ListName);
   };
-
-  useEffect(() => {}, [draggedTaskID]);
 
   return (
     <>
@@ -169,7 +159,6 @@ export default function ToDo(props) {
               priority={task.priority}
               key={index}
               id={task.id}
-              handleDragStart={handleDragStart}
               togglePopup={togglePopup}
               deleteTask={deleteTask}
             />

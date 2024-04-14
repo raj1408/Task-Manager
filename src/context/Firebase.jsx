@@ -49,6 +49,7 @@ export const useFirebase = () => {
 
 export const FirebaseProvider = (props) => {
   const [user, setUser] = useState(null);
+  const [draggedTaskID, setDraggedTaskID] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -310,19 +311,25 @@ export const FirebaseProvider = (props) => {
     }
   };
 
-  const onDropUpdate = async (taskID, newTodoTitle) => {
-    if (!taskID) {
+  const onDropUpdate = async (newTodoTitle) => {
+    if (!draggedTaskID) {
       console.error("Task ID is required.");
       return;
     }
     try {
-      const taskRef = doc(fireStore, "tasks", taskID);
+      const taskRef = doc(fireStore, "tasks", draggedTaskID);
       await updateDoc(taskRef, { todoTitle: newTodoTitle });
       console.log("Task updated successfully!");
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
+
+  const handleDragStart = (taskID) => {
+    setDraggedTaskID(taskID);
+  };
+
+  useEffect(() => {}, [draggedTaskID]);
 
   return (
     <FirebaseContext.Provider
@@ -344,6 +351,7 @@ export const FirebaseProvider = (props) => {
         fireStore,
         firebaseApp,
         onDropUpdate,
+        handleDragStart,
       }}
     >
       {props.children}
