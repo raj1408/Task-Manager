@@ -27,14 +27,13 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyByW9OLGFRuWEjeuknt6PnUOJ0lG6-LUFI",
-  authDomain: "todo-lists-manager.firebaseapp.com",
-  projectId: "todo-lists-manager",
-  storageBucket: "todo-lists-manager.appspot.com",
-  messagingSenderId: "939607649537",
-  appId: "1:939607649537:web:32d80716554e74d391ff00",
-  measurementId: "G-NQWN4TSDPY",
-  databaseURL: "https://todo-lists-manager-default-rtdb.firebaseio.com/",
+  apiKey: "AIzaSyDjcazQy6itvL9GCI4WGn2-ifmWJDxHu1c",
+  authDomain: "new-todo-manager.firebaseapp.com",
+  projectId: "new-todo-manager",
+  storageBucket: "new-todo-manager.appspot.com",
+  messagingSenderId: "351180930975",
+  appId: "1:351180930975:web:7593df3a23bec3fa2d47aa",
+  measurementId: "G-5DPKBJ8L31",
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
