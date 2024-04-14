@@ -24,7 +24,13 @@ export default function Task(props) {
         >
           Delete Task
         </button>
-        <button onClick={props.togglePopup} className="edit">
+        <button
+          onClick={(e) => {
+            props.togglePopup();
+            firebase.handleEditTask(props?.id);
+          }}
+          className="edit"
+        >
           Edit Task
         </button>
       </div>

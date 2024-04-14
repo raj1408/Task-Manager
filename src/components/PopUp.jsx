@@ -36,7 +36,7 @@ export default function PopUp(props) {
           <button className="edit_task" onClick={props.handleAddTask}>
             Add new Task
           </button>
-          <button className="edit_task" onClick={props.taskChange}>
+          <button className="edit_task" onClick={props.updateTask}>
             Edit current task
           </button>
         </div>

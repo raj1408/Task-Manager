@@ -91,8 +91,6 @@ export default function ToDo(props) {
         return;
       }
       await firebase.editTasksInFirestore(
-        loggedInUserId,
-        taskID,
         newTaskName,
         newTaskDescription,
         newTaskDueDate,

@@ -50,6 +50,7 @@ export const FirebaseProvider = (props) => {
   const [user, setUser] = useState(null);
   const [draggedTaskID, setDraggedTaskID] = useState("");
   const [error, setError] = useState(null);
+  const [editTask, setEditTask] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, (authUser) => {
@@ -275,19 +276,18 @@ export const FirebaseProvider = (props) => {
   };
 
   const editTasksInFirestore = async (
-    taskID,
     taskName,
     taskDescription,
     taskDueDate,
     taskPriority
   ) => {
-    if (!taskID) {
+    if (!editTask) {
       console.error("Task ID is required.");
       return;
     }
 
     try {
-      const taskRef = doc(fireStore, "tasks", taskID);
+      const taskRef = doc(fireStore, "tasks", editTask);
       const updates = {};
 
       if (taskName !== "") {
@@ -330,6 +330,12 @@ export const FirebaseProvider = (props) => {
 
   useEffect(() => {}, [draggedTaskID]);
 
+  const handleEditTask = (taskID) => {
+    setEditTask(taskID);
+  };
+
+  useEffect(() => {}, [editTask]);
+
   return (
     <FirebaseContext.Provider
       value={{
@@ -351,6 +357,7 @@ export const FirebaseProvider = (props) => {
         firebaseApp,
         onDropUpdate,
         handleDragStart,
+        handleEditTask,
       }}
     >
       {props.children}
