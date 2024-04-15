@@ -27,13 +27,13 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDLK6HvTsTonZAg2Q2c1uqTPckupSVf-68",
-  authDomain: "todo-manager-39a2a.firebaseapp.com",
-  projectId: "todo-manager-39a2a",
-  storageBucket: "todo-manager-39a2a.appspot.com",
-  messagingSenderId: "444970468265",
-  appId: "1:444970468265:web:c0a3db03a7b43e788a7ab8",
-  measurementId: "G-ZQK00JS4EL",
+  apiKey: "AIzaSyD-XrsIdsjBpCz4b2udky1DVdnhbBzXTfI",
+  authDomain: "todo-dfbc5.firebaseapp.com",
+  projectId: "todo-dfbc5",
+  storageBucket: "todo-dfbc5.appspot.com",
+  messagingSenderId: "793085890516",
+  appId: "1:793085890516:web:4ad9b551e59c6b46ad1041",
+  measurementId: "G-BR7JL44FP8",
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
