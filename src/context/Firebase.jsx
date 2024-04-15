@@ -27,15 +27,14 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD-XrsIdsjBpCz4b2udky1DVdnhbBzXTfI",
-  authDomain: "todo-dfbc5.firebaseapp.com",
-  projectId: "todo-dfbc5",
-  storageBucket: "todo-dfbc5.appspot.com",
-  messagingSenderId: "793085890516",
-  appId: "1:793085890516:web:4ad9b551e59c6b46ad1041",
-  measurementId: "G-BR7JL44FP8",
+  apiKey: "AIzaSyBwectJgx-gtfei69906TQQ7pjcEjg4_OA",
+  authDomain: "task-manager-28005.firebaseapp.com",
+  projectId: "task-manager-28005",
+  storageBucket: "task-manager-28005.appspot.com",
+  messagingSenderId: "973028067207",
+  appId: "1:973028067207:web:78015bea189764ee5b3522",
+  measurementId: "G-C3VV3654C6",
 };
-
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 const fireStore = getFirestore(firebaseApp);
