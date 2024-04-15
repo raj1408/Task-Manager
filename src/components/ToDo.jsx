@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import Task from "./Task";
 import PopUp from "./PopUp";
+import Priority_Container from "./Priority_Container";
 import { useFirebase } from "../context/Firebase";
 
 export default function ToDo(props) {
@@ -149,18 +150,24 @@ export default function ToDo(props) {
             />
           </div>
 
-          {tasks.map((task, index) => (
-            <Task
-              taskName={task.name}
-              description={task.description}
-              dueDate={task.dueDate}
-              priority={task.priority}
-              key={index}
-              id={task.id}
-              togglePopup={togglePopup}
-              deleteTask={deleteTask}
-            />
-          ))}
+          <Priority_Container
+            priority="High"
+            tasks={tasks}
+            togglePopup={togglePopup}
+            deleteTask={deleteTask}
+          />
+          <Priority_Container
+            priority="Medium"
+            tasks={tasks}
+            togglePopup={togglePopup}
+            deleteTask={deleteTask}
+          />
+          <Priority_Container
+            priority="Low"
+            tasks={tasks}
+            togglePopup={togglePopup}
+            deleteTask={deleteTask}
+          />
         </div>
       </div>
     </>

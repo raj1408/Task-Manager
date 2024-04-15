@@ -157,8 +157,21 @@ export const FirebaseProvider = (props) => {
 
     try {
       const userTodosRef = collection(fireStore, `todos`);
-      const batch = writeBatch(fireStore);
+      const querySnapshot = await getDocs(
+        query(userTodosRef, where("userID", "==", authUser))
+      );
 
+      const existingTodos = [];
+      querySnapshot.forEach((doc) => {
+        existingTodos.push(doc.data().title);
+      });
+
+      if (existingTodos.includes(todoTitle)) {
+        console.log("Todo with the same title already exists.");
+        return;
+      }
+
+      const batch = writeBatch(fireStore);
       const newDocRef = doc(userTodosRef);
       const titleValue =
         typeof todoTitle === "string" ? todoTitle : "Default Title";
@@ -324,6 +337,20 @@ export const FirebaseProvider = (props) => {
     }
   };
 
+  const onDropUpdatePriority = async (new_priority) => {
+    if (!draggedTaskID) {
+      console.error("Task ID is required.");
+      return;
+    }
+    try {
+      const taskRef = doc(fireStore, "tasks", draggedTaskID);
+      await updateDoc(taskRef, { priority: new_priority });
+      console.log("Task updated successfully!");
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
   const handleDragStart = (taskID) => {
     setDraggedTaskID(taskID);
   };
@@ -358,6 +385,7 @@ export const FirebaseProvider = (props) => {
         onDropUpdate,
         handleDragStart,
         handleEditTask,
+        onDropUpdatePriority,
       }}
     >
       {props.children}
