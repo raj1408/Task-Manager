@@ -233,6 +233,13 @@ p {
   background-color: #ae2535;
 }
 
+.toDo-delete {
+  width: 110px;
+  height: 51px;
+  margin: 20px;
+
+}
+
 .edit {
   border: solid #e1dada 3px;
   padding: 5px;

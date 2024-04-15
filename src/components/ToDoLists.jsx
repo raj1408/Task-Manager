@@ -62,8 +62,8 @@ export default function ToDoLists() {
         <button onClick={firebase.logOutUser}>Log Out</button>
       </div>
       <div className="todo-lists">
-        {lists.map((list, index) => (
-          <ToDo key={index} ListName={list} />
+        {lists.map((list) => (
+          <ToDo key={list.id} ListName={list.title} id={list.id} />
         ))}
       </div>
     </>

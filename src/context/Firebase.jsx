@@ -197,7 +197,10 @@ export const FirebaseProvider = (props) => {
       const userTodosRef = collection(fireStore, `/todos`);
       const q = query(userTodosRef, where("userID", "==", authUser));
       const querySnapshot = await getDocs(q);
-      const lists = querySnapshot.docs.map((doc) => doc.data().title);
+      const lists = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        title: doc.data().title,
+      }));
 
       return lists;
     } catch (error) {
@@ -351,6 +354,33 @@ export const FirebaseProvider = (props) => {
     }
   };
 
+  const deleteToDos = async (listID, todoTitle) => {
+    try {
+      if (!listID || !todoTitle) {
+        console.error("List ID and Todo Title are required.");
+        return;
+      }
+
+      const tasksRef = collection(fireStore, "tasks");
+      const queryTasks = query(tasksRef, where("todoTitle", "==", todoTitle));
+      const taskSnapshots = await getDocs(queryTasks);
+      const batchTasks = writeBatch(fireStore);
+
+      taskSnapshots.forEach((doc) => {
+        batchTasks.delete(doc.ref);
+      });
+
+      await batchTasks.commit();
+
+      const listDocRef = doc(collection(fireStore, "todos"), listID);
+      await deleteDoc(listDocRef);
+
+      console.log("Todo list and associated tasks deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting todo list and tasks:", error.message);
+    }
+  };
+
   const handleDragStart = (taskID) => {
     setDraggedTaskID(taskID);
   };
@@ -386,6 +416,7 @@ export const FirebaseProvider = (props) => {
         handleDragStart,
         handleEditTask,
         onDropUpdatePriority,
+        deleteToDos,
       }}
     >
       {props.children}

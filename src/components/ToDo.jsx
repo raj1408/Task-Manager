@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-import Task from "./Task";
 import PopUp from "./PopUp";
 import Priority_Container from "./Priority_Container";
 import { useFirebase } from "../context/Firebase";
@@ -129,9 +128,29 @@ export default function ToDo(props) {
     await firebase.onDropUpdate(props.ListName);
   };
 
+  const deleteToDo = async (todoID, ListName) => {
+    const loggedInUser = await firebase.loggedInUser()?.uid;
+    if (!loggedInUser) {
+      console.log("User is not logged in.");
+      return;
+    }
+    try {
+      await firebase.deleteToDos(todoID, ListName);
+      console.log("Deleted Todo successfully.");
+    } catch (error) {
+      console.error("Error deleting todo ", error);
+    }
+    setRefresh(true);
+  };
   return (
     <>
       <div className="todo" onDragOver={handleDragOver} onDrop={handleDrop}>
+        <button
+          className="delete toDo-delete"
+          onClick={() => deleteToDo(props.id, props.ListName)}
+        >
+          Delete ToDo
+        </button>
         <div className="tasks">
           <div className="headers">
             <h3>{props.ListName}</h3>
