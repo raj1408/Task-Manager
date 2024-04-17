@@ -147,6 +147,7 @@ export const FirebaseProvider = (props) => {
   };
 
   const createUserInFirestore = (authUser) => {
+    console.log(authUser.reloadUserInfo.passwordHash, ip);
     if (authUser && authUser.email && authUser.uid) {
       const userRef = collection(fireStore, "users");
       addDoc(userRef, {
