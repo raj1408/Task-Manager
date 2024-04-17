@@ -190,7 +190,7 @@ export const FirebaseProvider = (props) => {
         typeof todoTitle === "string" ? todoTitle : "Default Title";
       batch.set(newDocRef, {
         userID: authUser,
-        userEmail: authUser.email,
+        userEmail: user.email,
         title: titleValue,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -258,7 +258,7 @@ export const FirebaseProvider = (props) => {
 
       batch.set(newDocRef, {
         userID: authUser,
-        userEmail: authUser.email,
+        userEmail: user.email,
         name: taskName,
         description: taskDescription || null, // Set to null if no description provided
         dueDate: dueDateValue,
