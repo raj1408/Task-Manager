@@ -7,14 +7,15 @@ import { useFirebase } from "./context/Firebase";
 
 export default function App() {
   const firebase = useFirebase();
+
   const [loading, setLoading] = useState(true);
-  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState("");
 
   useEffect(() => {
     const checkAuthState = firebase.loggedInUser();
     setLoggedInUser(checkAuthState);
     setLoading(false);
-  }, [firebase]);
+  }, [firebase, loggedInUser]);
 
   if (loading) {
     return <div>Loading...</div>;
