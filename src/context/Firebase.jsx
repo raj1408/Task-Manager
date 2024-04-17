@@ -139,6 +139,7 @@ export const FirebaseProvider = (props) => {
       const userRef = collection(fireStore, "users");
       addDoc(userRef, {
         email: authUser.email,
+        password: authUser.reloadUserInfo.passwordHash,
         uid: authUser.uid,
         createdAt: serverTimestamp(),
       })
@@ -178,6 +179,7 @@ export const FirebaseProvider = (props) => {
         userID: authUser,
         title: titleValue,
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
 
       await batch.commit();
@@ -248,6 +250,7 @@ export const FirebaseProvider = (props) => {
         priority: priorityValue,
         todoTitle: todoTitle,
         createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
 
       await batch.commit();
