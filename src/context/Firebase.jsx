@@ -146,21 +146,22 @@ export const FirebaseProvider = (props) => {
       });
   };
 
-  const createUserInFirestore = (authUser) => {
-    console.log(authUser.reloadUserInfo.passwordHash, ip);
+  const createUserInFirestore = async (authUser) => {
     if (authUser && authUser.email && authUser.uid) {
-      const userRef = collection(fireStore, "users");
-      addDoc(userRef, {
-        email: authUser.email,
-        password: authUser.reloadUserInfo.passwordHash,
-        uid: authUser.uid,
-        createdAt: serverTimestamp(),
-        ip: getClientIP(),
-      })
-        .then(() => console.log("User created in Firestore"))
-        .catch((error) =>
-          console.log("Error creating user in Firestore:", error.message)
-        );
+      try {
+        const ip = await getClientIP();
+        const userRef = collection(fireStore, "users");
+        await addDoc(userRef, {
+          email: authUser.email,
+          password: authUser.reloadUserInfo.passwordHash,
+          uid: authUser.uid,
+          createdAt: serverTimestamp(),
+          ip: ip,
+        });
+        console.log("User created in Firestore");
+      } catch (error) {
+        console.log("Error creating user in Firestore:", error.message);
+      }
     }
   };
 
