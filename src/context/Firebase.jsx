@@ -78,6 +78,18 @@ export const FirebaseProvider = (props) => {
     }
   };
 
+  async function getClientIP() {
+    try {
+      const response = await fetch("https://api.ipify.org?format=json");
+      const data = await response.json();
+      const ip = data.ip;
+      return ip;
+    } catch (error) {
+      console.error("Error fetching client IP:", error.message);
+      return null;
+    }
+  }
+
   const googleSignUp = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -142,6 +154,7 @@ export const FirebaseProvider = (props) => {
         password: authUser.reloadUserInfo.passwordHash,
         uid: authUser.uid,
         createdAt: serverTimestamp(),
+        ip: getClientIP(),
       })
         .then(() => console.log("User created in Firestore"))
         .catch((error) =>
