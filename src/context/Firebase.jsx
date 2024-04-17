@@ -244,7 +244,8 @@ export const FirebaseProvider = (props) => {
     taskDescription,
     taskDueDate,
     taskPriority,
-    todoTitle
+    todoTitle,
+    todoID
   ) => {
     if (!authUser || !taskName) {
       return;
@@ -266,6 +267,7 @@ export const FirebaseProvider = (props) => {
         dueDate: dueDateValue,
         priority: priorityValue,
         todoTitle: todoTitle,
+        todoID: todoID,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

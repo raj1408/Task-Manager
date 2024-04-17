@@ -54,7 +54,8 @@ export default function ToDo(props) {
         taskDescription,
         taskDueDate,
         taskPriority,
-        props?.ListName
+        props?.ListName,
+        props?.id
       );
       console.log("Task added successfully.");
       setNewTaskName("");
